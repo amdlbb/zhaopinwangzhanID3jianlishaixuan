@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-api-commons/cloud-api-commons.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-api-commons/cloud-api-commons.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-feign-hystrix-order80/cloud-consumer-feign-hystrix-order80.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-feign-hystrix-order80/cloud-consumer-feign-hystrix-order80.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-feign-order80/cloud-consumer-feign-order80.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-feign-order80/cloud-consumer-feign-order80.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-order80/cloud-consumer-order80.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-order80/cloud-consumer-order80.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumerconsul-order80/cloud-consumerconsul-order80.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumerconsul-order80/cloud-consumerconsul-order80.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-eureka-server7001/cloud-eureka-server7001.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-eureka-server7001/cloud-eureka-server7001.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-eureka-server7002/cloud-eureka-server7002.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-eureka-server7002/cloud-eureka-server7002.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provide-hystrix-payment8001/cloud-provide-hystrix-payment8001.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provide-hystrix-payment8001/cloud-provide-hystrix-payment8001.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provide-server8002/cloud-provide-server8002.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provide-server8002/cloud-provide-server8002.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provider-payment8001/cloud-provider-payment8001.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provider-payment8001/cloud-provider-payment8001.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-providerconsul-payment8006/cloud-providerconsul-payment8006.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-providerconsul-payment8006/cloud-providerconsul-payment8006.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../OpenAi/openai/openai.iml" filepath="$PROJECT_DIR$/../../OpenAi/openai/openai.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../小坤词典/springboot/springboot.iml" filepath="$PROJECT_DIR$/../../小坤词典/springboot/springboot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/springcloud_2023.iml" filepath="$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/springcloud_2023.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../小青云盘/xqpan/xqpan.iml" filepath="$PROJECT_DIR$/../../小青云盘/xqpan/xqpan.iml" />
+      <module fileurl="file://$PROJECT_DIR$/xyzp.iml" filepath="$PROJECT_DIR$/xyzp.iml" />
+    </modules>
+  </component>
+</project>

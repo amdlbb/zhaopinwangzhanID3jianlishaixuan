@@ -1,0 +1,91 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: xyzp-gateway
+
+  cloud:
+    nacos:
+      server-addr: 192.168.44.1:8848
+      discovery:
+        cluster-name: mycluster
+        ephemeral: false
+        username: nacos
+        password: nacos
+      config:
+        username: nacos
+        password: nacos
+
+    gateway:
+      # ========== 全局跨域配置 ==========
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            # 允许的跨域来源（生产环境请替换为具体域名）
+            allowedOrigins:
+              - "http://localhost:8080"
+              - "http://localhost:8081"
+              - "http://localhost:8082"
+              - "http://localhost:8083"
+              - "http://localhost:8084"
+              - "http://localhost:8085"
+              - "http://localhost:8086"
+              - "http://localhost:8087"
+              - "http://localhost:8088"
+              - "http://localhost:8089"
+              - "http://localhost:8090"
+              - "http://localhost:8888"
+              - "http://192.168.44.1:8080"
+              - "http://192.168.44.1:8081"
+              - "http://192.168.44.1:8082"
+              - "http://192.168.44.1:8083"
+              - "http://192.168.44.1:8084"
+              - "http://192.168.44.1:8085"
+              - "http://192.168.44.1:8086"
+              - "http://192.168.44.1:8087"
+              - "http://192.168.44.1:8088"
+              - "http://192.168.44.1:8089"
+              - "http://192.168.44.1:8090"
+              - "http://192.168.44.1:8888"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            # 允许前端请求携带凭证（token cookie 等）
+            allowCredentials: true
+            maxAge: 36000
+
+      # ========== 路由规则 ==========
+      routes:
+        # ---- 路由1: Java 后端 (webservice)，处理 /api/** 但不含 /api/ai/**
+        - id: webservice-route
+          uri: lb://webservice
+          predicates:
+            - Path=/api/**
+            - not_path=/api/ai/**
+          filters:
+            # 移除前缀（可选：如果后端不需要 /api 前缀可以打开下面这行）
+            # - StripPrefix=1
+
+        # ---- 路由2: Python AI 服务 (ai-service)，处理 /api/ai/**
+        - id: ai-service-route
+          uri: lb://ai-service
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            # 如果是 /api/ai/xxx，转发到 Python 服务时路径变为 /xxx
+            - StripPrefix=2
+
+      # 路由默认规则
+      default-filters:
+        # 转发原始请求头（token 等）
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Methods
+
+# Actuator 配置（健康检查 / 路由刷新）
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always

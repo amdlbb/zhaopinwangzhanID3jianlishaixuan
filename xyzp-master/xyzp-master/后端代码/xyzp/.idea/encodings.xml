@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" native2AsciiForPropertiesFiles="true" defaultCharsetForPropertiesFiles="UTF-8">
+    <file url="file://$PROJECT_DIR$/../../OpenAi/openai/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../小坤词典/springboot/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../小青云盘/xqpan/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../小青云盘/xqpan/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-api-commons/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-api-commons/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-feign-hystrix-order80/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-feign-hystrix-order80/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-feign-order80/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-feign-order80/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-order80/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumer-order80/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumerconsul-order80/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-consumerconsul-order80/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-eureka-server7001/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-eureka-server7001/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-eureka-server7002/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-eureka-server7002/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provide-hystrix-payment8001/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provide-hystrix-payment8001/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provide-server8002/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provide-server8002/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provider-payment8001/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-provider-payment8001/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-providerconsul-payment8006/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Springcloud/学习/springcloud_2023/cloud-providerconsul-payment8006/src/main/resources" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
+  </component>
+</project>

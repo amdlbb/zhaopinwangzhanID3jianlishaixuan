@@ -1,0 +1,79 @@
+server:
+  port: 8081
+#feign的连接池
+feign:
+  httpclient:
+    enabled: true
+    max-connections: 200
+    max-connections-per-route: 50
+spring:
+#  application:
+#    name: webservice
+#  cloud:
+#    nacos:
+#      server-addr: 192.168.44.1:8848
+#      discovery:
+#        cluster-name: mycluster
+#        ephemeral: false #设置非临时实例
+#        username: nacos
+#        password: nacos
+#      config:
+#        username: nacos
+#        password: nacos
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/xyzp?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    generator:
+      #Long类型转换，防止精度丢失
+      write_numbers_as_strings: true
+  redis:
+    port: 6379
+    host: 127.0.0.1
+  mail:
+    default-encoding: UTF-8
+    host: smtp.qq.com
+    port: 587
+    # 换成自己的qq邮箱和密钥
+    username: 783129571@qq.com
+    password: kzdfbkvmdxrrbehd
+    properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true  # 【关键】必须开启 STARTTLS
+              required: true # 【关键】强制要求 TLS
+
+
+
+config:
+  jwt:
+    # 密钥
+    secret: sFA$%##@f2ER32ddd1
+    # 过期时间
+    expire: 7200
+    # token头
+    header: token
+
+# 模型文件配置
+model:
+  file:
+    # 方式1：绝对路径（Windows）
+    path: C:/bs/xyzp-master/xyzp-master/model.bin
+
+mybatis:
+  type-aliases-package: com.abc.xyzp.mapper
+  mapper-locations: classpath:com/abc/xyzp/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+Image:
+  URL: http://localhost:8081/
+  #Path: D:\Springboot\Springboot项目\校园招聘\xyzp\src\main\resources\image\
+  Path: C:\bs\xyzp-master\xyzp-master\后端代码\xyzp\src\main\resources\image
+
