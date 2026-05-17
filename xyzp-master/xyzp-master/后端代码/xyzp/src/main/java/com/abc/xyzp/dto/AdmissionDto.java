@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 @Data
 public class AdmissionDto {
 
+    private Long id;
+
     private Long teamJobId;
 
     private Long userId;
@@ -36,6 +38,10 @@ public class AdmissionDto {
     private String exceptionSalary;
 
     private String exceptionJob;
+
+    private String email;
+
+    private String username;
 
     private String jobName;
 

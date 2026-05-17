@@ -223,5 +223,30 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Override
+    public Result<String> sendOnboardEmail(String title, String content, String toEmail) {
+        try {
+            log.info("开始发送入职邮件给: {}", toEmail);
+
+            mailTaskExecutor.execute(() -> {
+                ThreadPoolMonitorUtils.printPoolStatus((org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor)
+                        mailTaskExecutor, "发送入职邮件前");
+                try {
+                    sendEmail(title, content, "校园招聘", toEmail);
+                    log.info("入职邮件已发送给: {}", toEmail);
+                } catch (Exception e) {
+                    log.error("异步发送入职邮件失败: {}", e.getMessage());
+                }
+                ThreadPoolMonitorUtils.printPoolStatus((org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor)
+                        mailTaskExecutor, "发送入职邮件后");
+            });
+
+            return Result.success("发送邮件成功");
+        } catch (Exception e) {
+            log.error("发送入职邮件异常", e);
+            return Result.error("发送邮件失败: " + e.getMessage());
+        }
+    }
+
 
 }

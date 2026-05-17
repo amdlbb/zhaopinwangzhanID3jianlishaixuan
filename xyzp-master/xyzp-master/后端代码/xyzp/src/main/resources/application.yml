@@ -64,7 +64,7 @@ config:
 model:
   file:
     # 方式1：绝对路径（Windows）
-    path: C:/bs/xyzp-master/xyzp-master/model.bin
+    path: /home/dalabengba/.openclaw/workspace/deepseek-tui/runtime/model.bin
 
 mybatis:
   type-aliases-package: com.abc.xyzp.mapper
@@ -73,7 +73,7 @@ mybatis:
     map-underscore-to-camel-case: true
 
 Image:
-  URL: http://localhost:8081/
+  URL: http://localhost:8888/
   #Path: D:\Springboot\Springboot项目\校园招聘\xyzp\src\main\resources\image\
-  Path: C:\bs\xyzp-master\xyzp-master\后端代码\xyzp\src\main\resources\image
+  Path: /home/dalabengba/.openclaw/workspace/deepseek-tui/runtime/image
 

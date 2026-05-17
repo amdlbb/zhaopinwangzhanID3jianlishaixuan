@@ -758,6 +758,32 @@ export const reqTeamJobSearch = (data) => {
 }
 
 /**
+ * 设为入职
+ * @param {Object} data - 包含 admissionIds 数组
+ * @returns {Promise}
+ */
+export const reqSetOnboard = (data) => {
+    return requests({
+        url: "/onboard/setOnboard",
+        method: 'put',
+        data: data
+    })
+}
+
+/**
+ * 发送入职沟通邮件
+ * @param {Object} data - 包含 title, content, userId
+ * @returns {Promise}
+ */
+export const reqSendOnboardEmail = (data) => {
+    return requests({
+        url: "/onboard/sendEmail",
+        method: 'post',
+        data: data
+    })
+}
+
+/**
  * 重新开启/关闭职位
  * @param {Object} data - 包含职位ID和状态
  * @returns {Promise} 返回请求的Promise对象

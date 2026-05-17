@@ -9,7 +9,9 @@ import {
     reqSubmitSave,
     reqAdmissionEmail,
     reqAdmissionList,
-    reqDeliverList
+    reqDeliverList,
+    reqSetOnboard,
+    reqSendOnboardEmail
 } from "@/api"
 // state：仓库存储数据的地方
 const state = {
@@ -61,6 +63,14 @@ const actions = {
     // 删除
     async adminRemoveAdmin({commit}, data){
         return await reqAdminRemoveAdmin(data)
+    },
+    // 设为入职
+    async setOnboard({commit}, data){
+        return await reqSetOnboard(data)
+    },
+    // 发送入职邮件
+    async sendOnboardEmail({commit}, data){
+        return await reqSendOnboardEmail(data)
     }
     
 

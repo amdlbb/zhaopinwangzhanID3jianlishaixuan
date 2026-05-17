@@ -13,4 +13,6 @@ public interface EmailService {
     Result<String> sendAdmission(HttpServletRequest httpServletRequest, Map<String, Object> data);
 
     Result<String> sendJobOfflineNotification(Long teamId, String jobName);
+
+    Result<String> sendOnboardEmail(String title, String content, String toEmail);
 }

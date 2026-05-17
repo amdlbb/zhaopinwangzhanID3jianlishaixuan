@@ -97,7 +97,7 @@ public interface TeamMapper {
             "where tb_interview.team_job_id = tb_team_job.id and tb_interview.user_id = tb_user.id and tb_user.user_resume_id = tb_user_resume.id and tb_team.id = #{teamId} and tb_team.id = tb_team_job.team_id and tb_team_job.job_id = tb_job.id and tb_interview.status = 1 and tb_job.name like concat('%', #{content}, '%')")
     int searchInterviewTotalById(Long teamId, String content);
 
-    @Select("select tb_admission.id, tb_admission.work_address workAddress, tb_admission.work_time workTime, tb_team_job.id teamJobId, tb_user.id userId, tb_user_resume.age, tb_user_resume.content, tb_user_resume.phone, tb_job.name jobName, tb_user_resume.name name, tb_user_resume.sex, tb_user_resume.education, tb_user_resume.school, tb_user_resume.exception_salary, tb_user_resume.exception_job from tb_admission, tb_team_job, tb_user, tb_user_resume, tb_team, tb_job " +
+    @Select("select tb_admission.id, tb_admission.work_address workAddress, tb_admission.work_time workTime, tb_team_job.id teamJobId, tb_user.id userId, tb_user.email email, tb_user.username username, tb_user_resume.age, tb_user_resume.content, tb_user_resume.phone, tb_job.name jobName, tb_user_resume.name name, tb_user_resume.sex, tb_user_resume.education, tb_user_resume.school, tb_user_resume.exception_salary, tb_user_resume.exception_job from tb_admission, tb_team_job, tb_user, tb_user_resume, tb_team, tb_job " +
             "where tb_admission.team_job_id = tb_team_job.id and tb_admission.user_id = tb_user.id and tb_user.user_resume_id = tb_user_resume.id and tb_team.id = tb_team_job.team_id and tb_team_job.job_id = tb_job.id and tb_admission.status = 1 limit #{i}, #{pageSize}")
     List<AdmissionDto> queryAllAdmission(int i, int pageSize);
 
