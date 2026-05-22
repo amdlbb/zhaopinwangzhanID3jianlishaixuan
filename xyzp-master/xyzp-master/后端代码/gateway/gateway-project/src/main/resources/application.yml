@@ -10,7 +10,7 @@ spring:
 
   cloud:
     nacos:
-      server-addr: localhost:8848
+      server-addr: 192.168.44.1:8848
       discovery:
         cluster-name: mycluster
         ephemeral: false
@@ -30,13 +30,39 @@ spring:
               - "http://localhost:8081"
               - "http://localhost:8082"
               - "http://localhost:8083"
+              - "http://localhost:8084"
+              - "http://localhost:8085"
+              - "http://localhost:8086"
+              - "http://localhost:8087"
+              - "http://localhost:8088"
+              - "http://localhost:8089"
+              - "http://localhost:8090"
               - "http://localhost:8888"
+              - "http://192.168.44.1:8080"
+              - "http://192.168.44.1:8081"
+              - "http://192.168.44.1:8082"
+              - "http://192.168.44.1:8083"
+              - "http://192.168.44.1:8084"
+              - "http://192.168.44.1:8085"
+              - "http://192.168.44.1:8086"
+              - "http://192.168.44.1:8087"
+              - "http://192.168.44.1:8088"
+              - "http://192.168.44.1:8089"
+              - "http://192.168.44.1:8090"
+              - "http://192.168.44.1:8888"
             allowedMethods: "*"
             allowedHeaders: "*"
             allowCredentials: true
             maxAge: 36000
 
       routes:
+        - id: ai-service-route
+          uri: lb://ai-service
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            # 如果是 /api/ai/xxx，转发到 Python 服务时路径变为 /xxx
+            - StripPrefix=2
         - id: webservice-route
           uri: lb://webservice
           predicates:

@@ -16,15 +16,27 @@
         </div>
         <el-table ref="multipleTable" :data="pagedTableData" style="width: 100%"
                   @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="70">
+          <el-table-column type="selection" width="70" align="center">
           </el-table-column>
           <el-table-column prop="username" label="账号" width="150">
+            <template slot-scope="scope">
+              <span v-html="scope.row.username"></span>
+            </template>
           </el-table-column>
           <el-table-column prop="nickname" label="姓名" width="180">
+            <template slot-scope="scope">
+              <span v-html="scope.row.nickname"></span>
+            </template>
           </el-table-column>
           <el-table-column prop="jobname" label="职位" width="180">
+            <template slot-scope="scope">
+              <span v-html="scope.row.jobname"></span>
+            </template>
           </el-table-column>
           <el-table-column prop="teamname" label="部门" width="180">
+            <template slot-scope="scope">
+              <span v-html="scope.row.teamname"></span>
+            </template>
           </el-table-column>
           <el-table-column label="是否推荐" width="120">
             <template slot-scope="scope">
@@ -50,46 +62,43 @@
     <el-dialog title="简历详情" :visible.sync="resumeDialogVisible" width="50%" custom-class="dialogDiv"  :lazy="true">
       <div class="tableLine" v-if="currentResume">
         <div class="tableLine1"><span>姓名</span></div>
-        <div class="tableLine2"><span>{{ currentResume.name }}</span></div>
+        <div class="tableLine2"><span v-html="currentResume.name"></span></div>
       </div>
       <div class="tableLine">
         <div class="tableLine1"><span>性别</span></div>
-        <div class="tableLine2"><span>{{ currentResume.sex }}</span></div>
+        <div class="tableLine2"><span v-html="currentResume.sex"></span></div>
       </div>
       <div class="tableLine">
         <div class="tableLine1"><span>年龄</span></div>
-        <div class="tableLine2"><span>{{ currentResume.age }}</span></div>
+        <div class="tableLine2"><span v-html="currentResume.age"></span></div>
       </div>
       <div class="tableLine">
         <div class="tableLine1"><span>手机</span></div>
-        <div class="tableLine2"><span>{{ currentResume.phone }}</span></div>
+        <div class="tableLine2"><span v-html="currentResume.phone"></span></div>
       </div>
       <div class="tableLine">
         <div class="tableLine1"><span>学历</span></div>
-        <div class="tableLine2"><span>{{ currentResume.education }}</span></div>
+        <div class="tableLine2"><span v-html="currentResume.education"></span></div>
       </div>
       <div class="tableLine">
         <div class="tableLine1"><span>专业</span></div>
-        <div class="tableLine2"><span>{{ currentResume.major }}</span></div>
+        <div class="tableLine2"><span v-html="currentResume.major"></span></div>
       </div>
       <div class="tableLine">
         <div class="tableLine1"><span>学校</span></div>
-        <div class="tableLine2"><span>{{ currentResume.school }}</span></div>
+        <div class="tableLine2"><span v-html="currentResume.school"></span></div>
       </div>
       <div class="tableLine">
         <div class="tableLine1"><span>期望职位</span></div>
-        <div class="tableLine2"><span>{{ currentResume.exceptionJob }}</span></div>
+        <div class="tableLine2"><span v-html="currentResume.exceptionJob"></span></div>
       </div>
       <div class="tableLine">
         <div class="tableLine1"><span>期望薪资</span></div>
-        <div class="tableLine2"><span>{{ currentResume.exceptionSalary }}</span></div>
+        <div class="tableLine2"><span v-html="currentResume.exceptionSalary"></span></div>
       </div>
       <div class="tableLine">
         <div class="tableLine1"><span>详细内容</span></div>
-        <div class="tableLine2"><p style="margin:0; white-space: pre-wrap;">{{ currentResume.content }}</p></div>
-      </div>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="resumeDialogVisible = false">关 闭</el-button>
+        <div class="tableLine2"><p style="margin:0; white-space: pre-wrap;" v-html="currentResume.content || '暂无描述'"></p></div>
       </div>
     </el-dialog>
   </div>
@@ -122,10 +131,6 @@ export default {
     // 按预测结果排序，并支持搜索过滤
     filteredData() {
       let data = this.allData;
-      if (this.searchContent.trim()) {
-        const keyword = this.searchContent.trim().toLowerCase();
-        data = data.filter(item => item.username.toLowerCase().includes(keyword));
-      }
       // 排序：true在前，false在后
       return data.slice().sort((a, b) => (b.predictResult === true ? 1 : -1) - (a.predictResult === true ? 1 : -1));
     },
@@ -162,9 +167,40 @@ export default {
       }
     },
     // 搜索（重置页码）
-    search() {
-      this.page = 1;
+    async search() {
       // 无需额外处理，过滤和分页由计算属性自动完成
+      if (!this.searchContent.trim()) {
+        this.$message({
+          message: "搜索内容不能为空",
+          type: "warning",
+          center: true,
+          duration: 1500
+        })
+        return
+      }
+      try {
+        const res = await this.$store.dispatch("searchResume", {
+          content: this.searchContent
+        })
+        if (res.code != 200) {
+          this.$message({
+            message: res.msg,
+            type: 'error',
+            center: true,
+            duration: 1500
+          })
+        } else {
+          this.allData = res.data || []
+          this.page = 1
+        }
+      } catch (error) {
+        this.$message({
+          message: "请求异常",
+          type: "error",
+          center: true,
+          duration: 1500
+        })
+      }
     },
     // 分页切换
     handleCurrentChange(val) {

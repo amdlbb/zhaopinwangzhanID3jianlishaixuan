@@ -2,10 +2,8 @@ package com.abc.xyzp.service.impl;
 
 import com.abc.xyzp.VO.DeliverVO;
 import com.abc.xyzp.entity.*;
-import com.abc.xyzp.mapper.DeliverMapper;
-import com.abc.xyzp.mapper.JobMapper;
-import com.abc.xyzp.mapper.TeamMapper;
-import com.abc.xyzp.mapper.UserMapper;
+import com.abc.xyzp.mapper.*;
+import com.abc.xyzp.service.DeliverEsService;
 import com.abc.xyzp.service.DeliverService;
 import com.abc.xyzp.service.ID3DecisionTree;
 import com.abc.xyzp.service.ModelService;
@@ -13,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +38,12 @@ public class DeliverServiceImpl implements DeliverService {
 
     @Autowired
     private ModelService modelService;
+
+    @Autowired
+    private DeliverEsService deliverEsService;
+
+    @Autowired
+    private AdminMapper adminMapper;
 
     @Override
     public List<DeliverVO> getAllDeliverList() {
@@ -107,10 +112,25 @@ public class DeliverServiceImpl implements DeliverService {
                 })
                 .collect(Collectors.toList());
 
+        //全量更新索引库
+        deliverEsService.syncDeliverListToEs(sortedList);
+
         return sortedList;
     }
 
-    private Resume convertToResume(UserResume userResume) {
+    /**
+     * 搜索投递记录（基于 Elasticsearch）
+     * 支持全文检索和高亮显示
+     *
+     * @param keyword 搜索关键词
+     * @return 包含高亮信息的投递记录列表
+     */
+    @Override
+    public List<DeliverVO> searchResume(HttpServletRequest httpServletRequest, String keyword) {
+        return deliverEsService.searchResume(keyword);
+    }
+
+    public Resume convertToResume(UserResume userResume) {
         if (userResume == null) {
             return null;
         }

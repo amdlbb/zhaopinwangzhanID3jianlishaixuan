@@ -11,7 +11,8 @@ import {
     reqAdmissionList,
     reqDeliverList,
     reqSetOnboard,
-    reqSendOnboardEmail
+    reqSendOnboardEmail,
+    reqSearchResume
 } from "@/api"
 // state：仓库存储数据的地方
 const state = {
@@ -26,6 +27,9 @@ const actions = {
     // 获取管理员列表
     async getAdminList({commit}, data) {
         return await reqAdminList(data)
+    },
+    async searchResume({commit}, data) {
+        return await reqSearchResume(data)
     },
     async getDeliverList({commit}, data) {
         return await reqDeliverList(data)

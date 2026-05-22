@@ -20,6 +20,11 @@ spring:
 #      config:
 #        username: nacos
 #        password: nacos
+
+  rest:
+    uris: http://192.168.5.130:9200
+    connection-timeout: 5s
+    read-timeout: 60s
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/xyzp?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
@@ -64,7 +69,7 @@ config:
 model:
   file:
     # 方式1：绝对路径（Windows）
-    path: /home/dalabengba/.openclaw/workspace/deepseek-tui/runtime/model.bin
+    path: C:/bs/xyzp-master/xyzp-master/model.bin
 
 mybatis:
   type-aliases-package: com.abc.xyzp.mapper
@@ -75,5 +80,5 @@ mybatis:
 Image:
   URL: http://localhost:8888/
   #Path: D:\Springboot\Springboot项目\校园招聘\xyzp\src\main\resources\image\
-  Path: /home/dalabengba/.openclaw/workspace/deepseek-tui/runtime/image
+  Path: C:\bs\xyzp-master\xyzp-master\后端代码\xyzp\src\main\resources\image
 

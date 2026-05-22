@@ -845,3 +845,16 @@ export const retJobNum = () => {
         method: 'get',
     })
 }
+
+/**
+ * es搜索职位
+ * @param {Object} data - 搜索条件
+ * @returns {Promise} 返回请求的Promise对象
+ */
+export const reqSearchResume = (data) => {
+    return requests({
+        url: "/deliver/searchResume",
+        method: 'post',
+        data: data
+    })
+}

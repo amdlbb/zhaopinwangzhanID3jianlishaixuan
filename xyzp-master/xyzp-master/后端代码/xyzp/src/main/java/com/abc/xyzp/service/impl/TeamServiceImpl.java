@@ -8,9 +8,11 @@ import com.abc.xyzp.common.MyConstants;
 import com.abc.xyzp.common.SnowFlake;
 import com.abc.xyzp.common.exceptor.MyException;
 import com.abc.xyzp.dto.TeamDto;
+import com.abc.xyzp.dto.UserResumeDto;
 import com.abc.xyzp.entity.*;
 import com.abc.xyzp.mapper.*;
 import com.abc.xyzp.service.EmailService;
+import com.abc.xyzp.service.ModelService;
 import com.abc.xyzp.service.TeamService;
 import com.abc.xyzp.utils.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +23,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -60,6 +64,13 @@ public class TeamServiceImpl implements TeamService {
 
     @Resource
     private EmailService emailService;
+
+    @Resource
+    private ID3DecisionTreeImpl id3DecisionTree;
+
+    @Resource
+    private ModelService modelService;
+
 
 
     @Override
@@ -211,11 +222,57 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public Result<Map<String, Object>> getUserResume(HttpServletRequest httpServletRequest, int page, int pageSize) {
         Long teamId = Long.parseLong(String.valueOf(httpServletRequest.getAttribute("userId")));
+
+        List<UserResumeDto> resumeDtos = teamMapper.queryUserResumeById(teamId, (page - 1) * pageSize, pageSize);
+
+        if (resumeDtos == null || resumeDtos.isEmpty()) {
+            Map<String, Object> res = new HashMap<>();
+            res.put("data", resumeDtos);
+            res.put("totalNum", 0);
+            return Result.success(res);
+        }
+
+        TreeNode model = modelService.loadModel();
+
+        List<Map<String, Object>> enrichedData = resumeDtos.stream().map(dto -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", dto.getId());
+            item.put("name", dto.getName());
+            item.put("age", dto.getAge());
+            item.put("phone", dto.getPhone());
+            item.put("major", dto.getMajor());
+            item.put("education", dto.getEducation());
+            item.put("school", dto.getSchool());
+            item.put("content", dto.getContent());
+            item.put("sex", dto.getSex());
+            item.put("exceptionSalary", dto.getExceptionSalary());
+            item.put("exceptionJob", dto.getExceptionJob());
+            item.put("jobName", dto.getJobName());
+            item.put("teamJobId", dto.getTeamJobId());
+            item.put("userId", dto.getUserId());
+            item.put("deliverId", dto.getDeliverId());
+
+            Boolean predictResult = false;
+            if (model != null) {
+                Resume resume = convertToResume(dto);
+                if (resume != null) {
+                    predictResult = id3DecisionTree.predict(model, resume);
+                    if (predictResult == null) {
+                        predictResult = false;
+                    }
+                }
+            }
+            item.put("predictResult", predictResult);
+
+            return item;
+        }).collect(Collectors.toList());
+
         Map<String, Object> res = new HashMap<>();
-        res.put("data", teamMapper.queryUserResumeById(teamId, (page - 1) * pageSize, pageSize));
+        res.put("data", enrichedData);
         res.put("totalNum", teamMapper.queryUserResumeTotalById(teamId));
         return Result.success(res);
     }
+
 
     @Override
     public Result<Map<String, Object>> searchUserResume(HttpServletRequest httpServletRequest, String content) {
@@ -554,5 +611,32 @@ public class TeamServiceImpl implements TeamService {
         res.put("totalNum", get.size());
         return Result.success(res);
     }
+
+    private Resume convertToResume(UserResumeDto dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        Resume resume = new Resume();
+        resume.setId(dto.getId());
+        resume.setAge(dto.getAge());
+        resume.setEducation(dto.getEducation());
+        resume.setMajor(dto.getMajor());
+
+        try {
+            if (dto.getExceptionSalary() != null && !dto.getExceptionSalary().isEmpty()) {
+                resume.setExceptionSalary(new BigDecimal(dto.getExceptionSalary()));
+            } else {
+                resume.setExceptionSalary(BigDecimal.ZERO);
+            }
+        } catch (NumberFormatException e) {
+            resume.setExceptionSalary(BigDecimal.ZERO);
+        }
+
+        resume.setAdmit(null);
+
+        return resume;
+    }
 }
+
 
