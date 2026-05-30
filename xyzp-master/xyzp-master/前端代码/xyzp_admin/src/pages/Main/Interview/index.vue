@@ -5,7 +5,7 @@
     <div class="mainContent">
       <div class="mainContentSearch">
         <span class="iconfont icon-sousuo"></span>
-        <input type="text" placeholder="账号搜索" @keydown.enter="search" v-model="searchContent">
+        <input type="text" placeholder="搜索" @keydown.enter="search" v-model="searchContent">
       </div>
       <div class="mainContentTable">
         <div class="mainContentTableBtn">

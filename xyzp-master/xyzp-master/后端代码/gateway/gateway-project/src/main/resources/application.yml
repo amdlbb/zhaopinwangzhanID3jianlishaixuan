@@ -26,6 +26,7 @@ spring:
         cors-configurations:
           '[/**]':
             allowedOrigins:
+              - "http://localhost:8000"
               - "http://localhost:8080"
               - "http://localhost:8081"
               - "http://localhost:8082"
@@ -38,6 +39,7 @@ spring:
               - "http://localhost:8089"
               - "http://localhost:8090"
               - "http://localhost:8888"
+              - "http://192.168.44.1:8000"
               - "http://192.168.44.1:8080"
               - "http://192.168.44.1:8081"
               - "http://192.168.44.1:8082"

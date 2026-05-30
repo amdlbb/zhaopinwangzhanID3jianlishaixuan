@@ -1,0 +1,27 @@
+URL = "mysql+aiomysql://root:123456@localhost:3306/kfzs?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true"
+
+#创建引擎
+engine = create_async_engine(
+    URL,
+    echo = True,
+    pool_size = 10,
+    max_overflow = 20,
+)
+
+#创建会话
+AsyncSessionLocal = async_sessionmaker(
+    bind = engine,
+    class_ = AsyncSession,
+    expire_on_commit =  False
+)
+
+async def get_database():
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()

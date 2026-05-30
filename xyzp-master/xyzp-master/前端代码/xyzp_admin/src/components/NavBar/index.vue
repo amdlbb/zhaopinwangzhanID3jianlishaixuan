@@ -107,8 +107,21 @@ export default {
         };
     },
     mounted() {
+
+      this.initChoiceNum()
     },
     methods: {
+      initChoiceNum() {
+        if (this.$route.path == "/main/index") this.choiceNum = 1
+        else if (this.$route.path == "/main/userManager") this.choiceNum = 2
+        else if (this.$route.path == "/main/teamManager") this.choiceNum = 3
+        else if (this.$route.path == "/main/jobManager") this.choiceNum = 4
+        else if (this.$route.path == "/main/teamJobManager") this.choiceNum = 5
+        else if (this.$route.path == "/main/adminManager") this.choiceNum = 6
+        else if (this.$route.path == "/main/resume") this.choiceNum = 7
+        else if (this.$route.path == "/main/interview") this.choiceNum = 8
+        else if (this.$route.path == "/main/admission") this.choiceNum = 9
+      },
         // 跳转页面
         toRouter(idx) {
             // 若选择的与当前

@@ -12,7 +12,9 @@ import {
     reqDeliverList,
     reqSetOnboard,
     reqSendOnboardEmail,
-    reqSearchResume
+    reqSearchResume,
+    reqInterviewEmail,
+    reqSaveInterView
 } from "@/api"
 // state：仓库存储数据的地方
 const state = {
@@ -25,6 +27,19 @@ const mutations = {
 // action：书写业务逻辑（method方法）
 const actions = {
     // 获取管理员列表
+    async getSaveInterView({commit}, data) {
+        console.log('store action getSaveInterView 被调用，参数:', data)
+        const result = await reqSaveInterView(data)
+        console.log('store action getSaveInterView 返回:', result)
+        return result
+    },
+    async getInterviewEmail({commit}, data) {
+        console.log('store action getInterviewEmail 被调用，参数:', data)
+        const result = await reqInterviewEmail(data)
+        console.log('store action getInterviewEmail 返回:', result)
+        return result
+    },
+
     async getAdminList({commit}, data) {
         return await reqAdminList(data)
     },

@@ -1,0 +1,12 @@
+# 首次创建
+cd C:\bs\xyzp-master\xyzp-master\后端代码
+mkdir fastapi-demo && cd fastapi-demo
+python -m venv venv
+venv\Scripts\activate
+pip install fastapi uvicorn
+
+
+# 打开运行
+cd C:\bs\xyzp-master\xyzp-master\后端代码\fastapi-demo
+venv\Scripts\activate
+uvicorn main:app --reload

@@ -1,11 +1,11 @@
 <template>
-  <div class="adminDiv">
+  <div class="adminDiv" v-if="dataLoaded">
     <NavTop></NavTop>
     <NavHistory></NavHistory>
     <div class="mainContent">
       <div class="mainContentSearch">
         <span class="iconfont icon-sousuo"></span>
-        <input type="text" placeholder="账号搜索" @keydown.enter="search" v-model="searchContent">
+        <input type="text" placeholder="搜索" @keydown.enter="search" v-model="searchContent">
       </div>
       <div class="mainContentTable">
         <div class="mainContentTableBtn">
@@ -101,6 +101,24 @@
         <div class="tableLine2"><p style="margin:0; white-space: pre-wrap;" v-html="currentResume.content || '暂无描述'"></p></div>
       </div>
     </el-dialog>
+
+    <!-- 面试设置对话框 -->
+    <el-dialog title="设为面试" :visible.sync="interviewDialogVisible" custom-class="dialogDiv">
+      <div class="interviewInput">
+        <input type="text" v-model="interviewInfo.address" placeholder="面试地点">
+      </div>
+      <div class="interviewTime">
+        <el-date-picker v-model="interviewInfo.beginTime" type="datetime" value-format="timestamp"
+                        placeholder="开始时间">
+        </el-date-picker>
+        <el-date-picker v-model="interviewInfo.endTime" type="datetime" value-format="timestamp" placeholder="结束时间">
+        </el-date-picker>
+      </div>
+      <div class="interviewSubmitBtn">
+        <button @click="submitInterview">确定</button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -113,6 +131,21 @@ export default {
   components: { NavHistory, NavTop },
   data() {
     return {
+      // 数据是否已加载
+      dataLoaded: false,
+      // 面试设置对话框
+      interviewDialogVisible: false,
+      // 面试设置数据
+      interviewInfo: {
+        userId: 0,
+        teamJobId: 0,
+        deliverId: 0,
+        address: "",
+        beginTime: "",
+        endTime: "",
+        jobName: "",
+      },
+
       // 所有投递数据（原始）
       allData: [],
       // 搜索内容
@@ -139,8 +172,10 @@ export default {
       const start = (this.page - 1) * this.pageSize;
       return this.filteredData.slice(start, start + this.pageSize);
     }
+
   },
   mounted() {
+    this.dataLoaded = true;
     this.init();
   },
   methods: {
@@ -236,23 +271,119 @@ export default {
       }
     },
     // 批量录取（接口未就绪）
+    // 批量面试
+    // 批量面试
     batchAdmit() {
       if (this.multipleSelection.length === 0) {
         this.$message({
-          message: "请先选择要录取的候选人",
+          message: "请先选择要设为面试的候选人",
           type: "warning",
           center: true,
           duration: 1500,
         });
         return;
       }
-      // TODO: 调用录取接口
-      this.$message({
-        message: "录取功能暂未开放",
-        type: "info",
-        center: true,
-        duration: 1500,
-      });
+      if (this.multipleSelection.length > 1) {
+        this.$message({
+          message: "当前接口仅支持单条设置面试，请每次选择一条记录",
+          type: "error",
+          center: true,
+          duration: 3000,
+        });
+        return;
+      }
+      // 单条，弹出面试设置对话框
+      const row = this.multipleSelection[0];
+      console.log('选中的行数据:', row)
+
+      this.interviewInfo.userId = row.userId;
+      this.interviewInfo.teamJobId = row.teamJobId;
+      this.interviewInfo.deliverId = row.id;
+      this.interviewInfo.jobName = row.jobname || '';
+      this.interviewInfo.address = '';
+      this.interviewInfo.beginTime = '';
+      this.interviewInfo.endTime = '';
+
+      console.log('面试信息设置:', this.interviewInfo)
+      this.interviewDialogVisible = true;
+    },
+    // 提交面试设置
+    async submitInterview() {
+      console.log('=== 开始提交面试设置 ===')
+      console.log('面试信息:', this.interviewInfo)
+
+      if (!this.interviewInfo.address || !this.interviewInfo.beginTime || !this.interviewInfo.endTime) {
+        this.$message({
+          message: "请填写完整的面试信息（地点、开始时间、结束时间）",
+          type: "warning",
+          center: true,
+          duration: 1500,
+        });
+        return;
+      }
+
+      try {
+        console.log('准备调用 store dispatch: getSaveInterView')
+        const res = await this.$store.dispatch("getSaveInterView", this.interviewInfo);
+
+        console.log('接口返回结果:', res)
+
+        if (res && res.code == 200) {
+          this.$message({
+            message: "设置成功，正在发送邮件通知用户面试",
+            type: "success",
+            center: true,
+            duration: 1500,
+          });
+          this.interviewDialogVisible = false;
+
+          console.log('重新加载列表数据')
+          await this.init();
+
+          console.log('准备发送面试邮件')
+          await this.sendInterviewEmail({
+            userId: this.interviewInfo.userId,
+            beginTime: this.interviewInfo.beginTime,
+            endTime: this.interviewInfo.endTime,
+            jobName: this.interviewInfo.jobName,
+            address: this.interviewInfo.address,
+          });
+        } else {
+          console.error('接口返回错误:', res)
+          this.$message({
+            message: (res && res.msg) || "设置失败",
+            type: "error",
+            center: true,
+            duration: 1500,
+          });
+        }
+      } catch (error) {
+        console.error('=== 请求异常详情 ===')
+        console.error('错误对象:', error)
+        console.error('错误消息:', error.message)
+        console.error('错误堆栈:', error.stack)
+
+        this.$message({
+          message: "请求异常: " + (error.message || "未知错误"),
+          type: "error",
+          center: true,
+          duration: 3000,
+        });
+      }
+    },
+    // 发送面试邮件
+    async sendInterviewEmail(data) {
+      try {
+        const res = await this.$store.dispatch("getInterviewEmail", data);
+        if (res.code == 200) {
+          this.$message({
+            message: "邮件发送成功",
+            type: "success",
+            center: true,
+            duration: 1500,
+          });
+        }
+      } catch (e) { }
     },
     // 批量淘汰（接口未就绪）
     batchEliminate() {
@@ -278,6 +409,52 @@ export default {
 </script>
 
 <style scoped>
+
+.interviewInput {
+  height: 60px;
+  line-height: 60px;
+  text-align: center;
+}
+
+.interviewInput input {
+  padding: 5px 10px;
+  width: 60%;
+  border: 1px solid #b8b8b8;
+  font-size: 1rem;
+  color: #1f1f1f;
+  transition: .3s;
+  font-family: PingFangSC-Regular, Tahoma, Helvetica, "Microsoft Yahei", "微软雅黑", Arial, STHeiti;
+}
+
+.interviewTime {
+  text-align: center;
+}
+
+.interviewSubmitBtn {
+  height: 60px;
+  text-align: center;
+  line-height: 60px;
+}
+
+.interviewSubmitBtn button {
+  padding: 5px;
+  height: 30px;
+  font-size: 0.9rem;
+  border-radius: 3px;
+  background: #a6a0d9;
+  color: white;
+  border: 0;
+  width: 20%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.interviewSubmitBtn button:active {
+  background: rgb(145, 145, 234);
+}
+
+
+
 /* 复用面试管理的大部分样式，并补充预测结果状态样式 */
 .main-table-recommend {
   padding: 3px 6px;
