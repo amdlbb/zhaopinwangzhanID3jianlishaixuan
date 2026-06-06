@@ -17,6 +17,7 @@ import com.abc.xyzp.mapper.UserMapper;
 import com.abc.xyzp.mapper.UserResumeMapper;
 import com.abc.xyzp.service.AuthorizationService;
 import com.abc.xyzp.service.EmailService;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -223,4 +226,53 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         return Result.success("退出成功");
     }
+
+
+    @Override
+    public Map<String, Object> checkLoginStatus(String token) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (token == null || token.trim().isEmpty()) {
+            log.info("Token为空，用户未登录");
+            result.put("isLoggedIn", false);
+            result.put("userId", null);
+            return result;
+        }
+
+        try {
+            Claims claims = jwtConfig.getTokenClaim(token);
+            if (claims == null) {
+                log.info("Token解析失败，用户未登录");
+                result.put("isLoggedIn", false);
+                result.put("userId", null);
+                return result;
+            }
+
+            if (jwtConfig.isTokenExpired(claims.getExpiration())) {
+                log.info("Token已过期，用户未登录");
+                result.put("isLoggedIn", false);
+                result.put("userId", null);
+                return result;
+            }
+
+            String userId = claims.getSubject();
+            if (userId == null || userId.isEmpty()) {
+                log.info("Token中用户ID为空，用户未登录");
+                result.put("isLoggedIn", false);
+                result.put("userId", null);
+                return result;
+            }
+
+            log.info("Token验证成功，用户ID: {} 已登录", userId);
+            result.put("isLoggedIn", true);
+            result.put("userId", userId);
+            return result;
+        } catch (Exception e) {
+            log.error("Token验证异常: {}", e.getMessage());
+            result.put("isLoggedIn", false);
+            result.put("userId", null);
+            return result;
+        }
+    }
+
 }

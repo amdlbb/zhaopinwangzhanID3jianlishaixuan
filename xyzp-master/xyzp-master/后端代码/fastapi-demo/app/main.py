@@ -34,8 +34,10 @@ from app.core.database import engine
 from app.core.nacos_client import NacosService
 from app.models import Base          # 导入所有 ORM 模型
 from app.routers import items_router, user_router
+from app.routers.chatrouter import router as chat_router
 from app.schemas.common import Result
 from app.utils.exception import general_exception_handler, http_exception_handler, validation_exception_handler
+from app.interceptor import auth_middleware
 
 
 # ============================================================
@@ -63,27 +65,25 @@ async def lifespan(app: FastAPI):
         # 如果表已存在则跳过，不会覆盖
         await conn.run_sync(Base.metadata.create_all)
     print("✅ 数据库表初始化完成")
-
-    yield  # 应用运行期间挂在这里
-
-    # -------- 关闭时执行 ----------
-    print("🛑 应用关闭中...")
-    await engine.dispose()  # 关闭连接池
-    print("✅ 连接池已释放")
+    
 
     # --- 启动阶段 (替代原来的 @app.on_event("startup")) ---
     # 1. 服务注册
     nacos_service.register("127.0.0.1", 8000)
     # 2. 获取配置并挂载到 app.state 上，方便在API中访问
-    config = nacos_service.get_config("fastapi-config.yaml")
-    if config:
-        app.state.config = config
+    # config = nacos_service.get_config("fastapi-config.yaml")
+    # if config:
+    #     app.state.config = config
 
     # --- 关键点：yield 将应用的控制权交还给 FastAPI ---
     yield
 
     # --- 关闭阶段 (替代原来的 @app.on_event("shutdown")) ---
     # 应用关闭前，从Nacos注销服务
+    # -------- 关闭时执行 ----------
+    print("🛑 应用关闭中...")
+    await engine.dispose()  # 关闭连接池
+    print("✅ 连接池已释放")
     nacos_service.deregister("127.0.0.1", 8000)
 
 
@@ -98,6 +98,11 @@ app = FastAPI(
 )
 
 # ============================================================
+# 注册中间件（先注册的执行顺序靠外，后注册的靠近路由）
+# ============================================================
+app.middleware("http")(auth_middleware)
+
+# ============================================================
 # 注册异常处理类
 # ============================================================
 app.add_exception_handler(HTTPException, http_exception_handler)
@@ -109,6 +114,7 @@ app.add_exception_handler(Exception, general_exception_handler)
 # ============================================================
 app.include_router(items_router, prefix="/items", tags=["商品管理"])
 app.include_router(user_router)  # prefix 已在 user.py 中定义
+app.include_router(chat_router, prefix="/chat", tags=["AI 客服"])  # Gateway StripPrefix /api/ai → /chat
 nacos_service = NacosService()
 
 

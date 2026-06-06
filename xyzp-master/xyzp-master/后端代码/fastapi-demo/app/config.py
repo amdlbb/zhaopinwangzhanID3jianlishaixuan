@@ -32,10 +32,17 @@ class Settings:
     DATABASE_POOL_SIZE: int = 10    # 连接池大小
     DATABASE_MAX_OVERFLOW: int = 20 # 最大溢出连接数
 
+    #redis配置
     REDIS_URL: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
 
+    #aikey
+    API_KEY="sk-46f8a46dc5754643b6a1a49ec14590e6",
+    BASE_URL="https://api.deepseek.com"
+
+    #向量检索数
+    SIMILARITY: int = 3
 
 # 创建全局配置实例（类似 Spring 的 @ConfigurationProperties 单例）
 settings = Settings()

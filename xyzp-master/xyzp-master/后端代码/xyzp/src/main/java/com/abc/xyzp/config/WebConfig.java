@@ -19,7 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/api/authorization/login", "/api/email", "/api/authorization/register",
                         "/api/image/download/**", "/api/job", "/api/team/getNewTeamJob", "/api/team/getTeamJobInfo/**",
-                        "/api/team/recommendTeamJob", "/api/team/searchIndexTeamJob");
+                        "/api/team/recommendTeamJob", "/api/team/searchIndexTeamJob","/api/authorization/check-login");
     }
 
 

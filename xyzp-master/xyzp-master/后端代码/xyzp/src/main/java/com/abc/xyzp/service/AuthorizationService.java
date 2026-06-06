@@ -6,6 +6,7 @@ import com.abc.xyzp.entity.Result;
 import com.abc.xyzp.entity.User;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 public interface AuthorizationService {
 
@@ -14,4 +15,6 @@ public interface AuthorizationService {
     Result<String> register(RegisterForm registerForm);
 
     Result<String> logout(HttpServletRequest httpServletRequest);
+
+    Map<String, Object> checkLoginStatus(String token);
 }

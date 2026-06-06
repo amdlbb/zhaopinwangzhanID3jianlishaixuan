@@ -6,12 +6,10 @@ import com.abc.xyzp.entity.Result;
 import com.abc.xyzp.entity.User;
 import com.abc.xyzp.service.AuthorizationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/authorization")
@@ -48,6 +46,19 @@ public class AuthorizationController {
     @PostMapping("/logout")
     public Result<String> logout(HttpServletRequest httpServletRequest){
         return authorizationService.logout(httpServletRequest);
+    }
+
+    /**
+     * pyfegin检查登录状态
+     * @param token
+     * @return
+     */
+    @GetMapping("/check-login")
+    public Result<Map<String, Object>> checkLogin(
+            @RequestHeader(value = "token", required = false) String token) {
+
+        Map<String, Object> loginStatus = authorizationService.checkLoginStatus(token);
+        return Result.success(loginStatus);
     }
 
 
