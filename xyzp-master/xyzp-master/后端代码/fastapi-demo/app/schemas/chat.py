@@ -87,6 +87,22 @@ class SessionMessageResponse(BaseModel):
 # LangChain 提示词模板
 # =====================================================================
 
+# 临时会话提示词模板（无历史记录）
+TEMP_CHAT_PROMPT = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        "你是一个专业的AI客服助手「云才科技」。"
+        "根据提供的参考信息，用中文回答用户关于公司、招聘、投递、面试等问题。"
+        "如果参考信息不足以回答，如实说不知道，不要编造。",
+    ),
+    (
+        "human",
+        "用户问题: {input}\n\n"
+        "参考信息:\n{context}",
+    ),
+])
+
+# 历史会话提示词模板（带历史记录）
 SESSION_CHAT_PROMPT = ChatPromptTemplate.from_messages([
     (
         "system",

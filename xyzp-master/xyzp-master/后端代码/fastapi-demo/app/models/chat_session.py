@@ -57,12 +57,14 @@ class ChatSession(Base):
         comment="状态: 1=进行中, 0=已删除",
     )
     created_at = Column(
+        "created_time",
         DateTime,
         server_default=func.now(),
         nullable=False,
         comment="创建时间",
     )
     updated_at = Column(
+        "updated_time",
         DateTime,
         server_default=func.now(),
         onupdate=func.now(),

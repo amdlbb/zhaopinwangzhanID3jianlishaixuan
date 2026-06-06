@@ -77,12 +77,13 @@ class FeignClient:
         Returns:
             解析后的 JSON 响应字典
         """
+        # 优先使用 Nacos 服务发现，失败则回退到本地默认地址
         instance = self._get_instance()
-        if not instance:
-            logger.warning(f"服务 [{self.service_name}] 无可用实例")
-            return {"code": 500, "msg": f"服务 [{self.service_name}] 不可用", "data": None}
-
-        url = f"http://{instance['ip']}:{instance['port']}{path}"
+        if instance:
+            url = f"http://{instance['ip']}:{instance['port']}{path}"
+        else:
+            logger.warning(f"Nacos 不可用，使用本地回退地址 localhost:8081")
+            url = f"http://127.0.0.1:8081{path}"
 
         async with httpx.AsyncClient(timeout=10.0) as client:
             try:

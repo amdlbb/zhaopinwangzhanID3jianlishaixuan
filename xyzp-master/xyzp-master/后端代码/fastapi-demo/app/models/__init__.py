@@ -11,6 +11,8 @@ models 包 - 数据库 ORM 模型层
 
 from app.models.base import Base
 from app.models.user import User
+from app.models.chat_session import ChatSession
+from app.models.chat_message import ChatMessage
 
 # 把所有模型导出，方便 metadata.create_all() 扫描
-__all__ = ["Base", "User"]
+__all__ = ["Base", "User", "ChatSession", "ChatMessage"]

@@ -26,8 +26,8 @@ class Result(BaseModel):
     统一 API 响应格式
     所有接口返回这个结构，方便前端统一处理
     """
-    code: int = 200            # 状态码（与 HTTP 状态码一致）
-    message: str = "success"   # 提示信息
+    code: int = 200            # 状态码（200=成功，201=业务错误，500=异常）
+    msg: str | None = None     # 提示信息
     data: Any = None           # 实际数据
 
 

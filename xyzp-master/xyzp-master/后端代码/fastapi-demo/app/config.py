@@ -37,9 +37,10 @@ class Settings:
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
 
-    #aikey
-    API_KEY="sk-46f8a46dc5754643b6a1a49ec14590e6",
-    BASE_URL="https://api.deepseek.com"
+    # AI API 配置 (DeepSeek)
+    API_KEY: str = "sk-46f8a46dc5754643b6a1a49ec14590e6"
+    BASE_URL: str = "https://api.deepseek.com"
+    AI_MODEL: str = "deepseek-chat"
 
     #向量检索数
     SIMILARITY: int = 3

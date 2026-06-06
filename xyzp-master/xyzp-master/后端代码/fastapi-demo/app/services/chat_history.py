@@ -1,37 +1,37 @@
-#TODO:ChatHistoryStore的编写实现
 """
 chat_history.py - LangChain BaseChatMessageHistory 实现
 ==========================================================
 
 【功能】
   将 MySQL kfzs 持久化 + Redis 缓存的聊天存储机制，
-  包装为 LangChain 认可的 ChatMessageHistory 接口。
-  使后续的 chain / Agent / memory 可以直接使用。
-
-【类比 Java】
-  public class ChatHistoryStore implements ChatMessageHistory {
-      @Override public List<BaseMessage> getMessages() { ... }
-      @Override public void addMessage(BaseMessage message) { ... }
-      @Override public void clear() { ... }
-  }
-
-【设计思路】
-  1. 继承 langchain_core.chat_history.BaseChatMessageHistory
-  2. messages 属性：Redis 缓存命中直接返回，未命中查 MySQL 后写回 Redis
-  3. add_message：MySQL 插入一行 chat_messages，同时更新 Redis 缓存
-  4. clear：软删除（chat_sessions.status = 0），不清除消息原始数据
-  5. 每条历史会话对应一个 ChatHistoryStore 实例（由 ChatService 按 session_id 创建）
+  包装为 LangChain 认可的 BaseChatMessageHistory 接口。
+  供 rag_service 的 chain 直接使用，实现上下文记忆。
 
 【缓存策略】
   - Redis key: "session:{session_id}"
-  - Redis value: 最近 N 条消息的 JSON 序列化列表（hash 或 list 结构）
+  - Redis value: JSON 序列化的消息列表
   - TTL: 3600 秒，每次读写续期
 """
 
+import json
+import logging
 from typing import List
 
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+from redis.asyncio import Redis
+
 from langchain_core.chat_history import BaseChatMessageHistory
-from langchain_core.messages import BaseMessage
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, message_to_dict, messages_from_dict
+
+from app.models.chat_message import ChatMessage
+from app.models.chat_session import ChatSession
+
+logger = logging.getLogger(__name__)
+
+# Redis 缓存 key 前缀与 TTL
+SESSION_KEY_PREFIX = "session:"
+CACHE_TTL = 3600
 
 
 class ChatHistoryStore(BaseChatMessageHistory):
@@ -42,18 +42,10 @@ class ChatHistoryStore(BaseChatMessageHistory):
     由 ChatService 按需创建，不独立暴露给路由层。
     """
 
-    def __init__(self, session_id: int, db_session, redis_client):
-        """
-        初始化历史会话存储器。
-
-        Args:
-            session_id: 会话 ID（chat_sessions.id）
-            db_session: SQLAlchemy async session（操作 kfzs 库）
-            redis_client: Redis 连接（操作缓存）
-        """
+    def __init__(self, session_id: int, db: AsyncSession, redis: Redis):
         self.session_id = session_id
-        self._db = db_session
-        self._redis = redis_client
+        self._db = db
+        self._redis = redis
 
     # =================================================================
     # 属性
@@ -62,63 +54,166 @@ class ChatHistoryStore(BaseChatMessageHistory):
     @property
     def messages(self) -> List[BaseMessage]:
         """
-        获取该会话的所有历史消息。
-
-        读取顺序：
-          1. Redis 缓存 session:{session_id} → 命中直接返回
-          2. 未命中 → MySQL chat_messages 表按 created_at 查
-          3. 写回 Redis 缓存（hash类型）
-          4. 返回按时间顺序排列的 BaseMessage 列表
-
-        Returns:
-            List[BaseMessage]: 按时间升序的历史消息列表
-
-        Raises:
-            ValueError: session_id 无效
+        同步属性（LangChain 要求），内部委托给异步方法。
+        LangChain 的 RunnableWithMessageHistory 会调用此属性。
+        由于 LangChain 内部以同步方式访问，这里用 asyncio.run 桥接。
         """
-        ...
+        import asyncio
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(self._aget_messages())
+        # 在已有事件循环中，使用 nest_asyncio 或直接等待
+        # 安全做法：如果已经在事件循环中且 run 不行，走同步 fallback
+        import concurrent.futures
+        future = asyncio.run_coroutine_threadsafe(self._aget_messages(), loop)
+        return future.result(timeout=10)
 
-    def add_message(self, message: BaseMessage) -> None:
-        """
-        添加一条消息到历史会话。
+    async def _aget_messages(self) -> List[BaseMessage]:
+        """异步获取消息列表，带 Redis 缓存"""
+        # 1. 尝试从 Redis 读取
+        cache_key = f"{SESSION_KEY_PREFIX}{self.session_id}"
+        try:
+            cached = await self._redis.get(cache_key)
+            if cached:
+                await self._redis.expire(cache_key, CACHE_TTL)
+                msg_dicts = json.loads(cached)
+                return messages_from_dict(msg_dicts)
+        except Exception as e:
+            logger.warning(f"Redis 读取失败 session={self.session_id}: {e}")
 
-        操作步骤：
-          1. 将 BaseMessage 转为 ChatMessage ORM 对象
-          2. 写入 MySQL chat_messages 表
-          3. 追加到 Redis 缓存 session:{session_id}（续期 TTL）
-          4. 更新 chat_sessions.updated_at
+        # 2. Redis 未命中 → 查 MySQL
+        result = await self._db.execute(
+            select(ChatMessage)
+            .where(ChatMessage.session_id == self.session_id)
+            .order_by(ChatMessage.created_at.asc())
+        )
+        rows = result.scalars().all()
 
-        """
-        ...
+        messages: List[BaseMessage] = []
+        for row in rows:
+            if row.role == "user":
+                messages.append(HumanMessage(content=row.content))
+            elif row.role == "assistant":
+                messages.append(AIMessage(content=row.content))
 
-    def clear(self) -> None:
-        """
-        清空当前会话的历史消息，并删除会话。
-        """
-        ...
+        # 3. 写回 Redis 缓存
+        if messages:
+            try:
+                msg_dicts = [message_to_dict(m) for m in messages]
+                await self._redis.setex(cache_key, CACHE_TTL, json.dumps(msg_dicts, ensure_ascii=False))
+            except Exception as e:
+                logger.warning(f"Redis 写入失败 session={self.session_id}: {e}")
+
+        return messages
 
     # =================================================================
-    # 工具方法（可选，辅助上层使用）
+    # 写操作
+    # =================================================================
+
+    def add_message(self, message: BaseMessage) -> None:
+        """同步包装 add_message"""
+        import asyncio
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(self._aadd_message(message))
+        import concurrent.futures
+        future = asyncio.run_coroutine_threadsafe(self._aadd_message(message), loop)
+        return future.result(timeout=10)
+
+    async def _aadd_message(self, message: BaseMessage) -> None:
+        """异步添加消息：写 MySQL + 更新 Redis 缓存 + 更新 session.updated_at"""
+        role = "user" if isinstance(message, HumanMessage) else "assistant"
+        content = message.content if isinstance(message.content, str) else str(message.content)
+
+        # 1. 写入 MySQL
+        chat_msg = ChatMessage(
+            session_id=self.session_id,
+            role=role,
+            content=content,
+        )
+        self._db.add(chat_msg)
+
+        # 2. 更新 session 的 updated_at
+        await self._db.execute(
+            update(ChatSession)
+            .where(ChatSession.id == self.session_id)
+            .values(updated_at=None)  # onupdate 会自动触发
+        )
+        await self._db.flush()
+
+        # 3. 更新 Redis 缓存（追加）
+        cache_key = f"{SESSION_KEY_PREFIX}{self.session_id}"
+        try:
+            cached = await self._redis.get(cache_key)
+            msg_list = json.loads(cached) if cached else []
+            msg_list.append(message_to_dict(message))
+            await self._redis.setex(cache_key, CACHE_TTL, json.dumps(msg_list, ensure_ascii=False))
+        except Exception as e:
+            logger.warning(f"Redis 缓存更新失败 session={self.session_id}: {e}")
+
+    def clear(self) -> None:
+        """同步包装 clear"""
+        import asyncio
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(self._aclear())
+        import concurrent.futures
+        future = asyncio.run_coroutine_threadsafe(self._aclear(), loop)
+        return future.result(timeout=10)
+
+    async def _aclear(self) -> None:
+        """清空当前会话：软删除 session + 清理缓存"""
+        cache_key = f"{SESSION_KEY_PREFIX}{self.session_id}"
+        try:
+            await self._redis.delete(cache_key)
+        except Exception:
+            pass
+
+    # =================================================================
+    # 工具方法
     # =================================================================
 
     async def get_messages_since(self, message_id: int) -> List[BaseMessage]:
-        """
-        获取某条消息之后的所有消息（断点续传 / 增量加载）。
+        """获取某条消息之后的所有消息"""
+        result = await self._db.execute(
+            select(ChatMessage)
+            .where(
+                ChatMessage.session_id == self.session_id,
+                ChatMessage.id > message_id,
+            )
+            .order_by(ChatMessage.created_at.asc())
+        )
+        rows = result.scalars().all()
+        msgs = []
+        for row in rows:
+            if row.role == "user":
+                msgs.append(HumanMessage(content=row.content))
+            else:
+                msgs.append(AIMessage(content=row.content))
+        return msgs
 
-        Args:
-            message_id: 起始消息 ID（不包含）
+    async def message_count(self) -> int:
+        """获取会话的消息总数"""
+        cache_key = f"{SESSION_KEY_PREFIX}{self.session_id}"
+        try:
+            cached = await self._redis.get(cache_key)
+            if cached:
+                return len(json.loads(cached))
+        except Exception:
+            pass
+        result = await self._db.execute(
+            select(ChatMessage).where(ChatMessage.session_id == self.session_id)
+        )
+        return len(result.scalars().all())
 
-        Returns:
-            List[BaseMessage]: message_id 之后的按时间升序的消息列表
-        """
-        ...
-
-    @property
-    def message_count(self) -> int:
-        """
-        获取该会话的消息总数。
-
-        Returns:
-            int: 消息数量
-        """
-        ...
+    async def refresh_cache(self) -> None:
+        """强制刷新 Redis 缓存（从 MySQL 重新加载）"""
+        cache_key = f"{SESSION_KEY_PREFIX}{self.session_id}"
+        try:
+            await self._redis.delete(cache_key)
+        except Exception:
+            pass
+        await self._aget_messages()  # 重新加载即写回

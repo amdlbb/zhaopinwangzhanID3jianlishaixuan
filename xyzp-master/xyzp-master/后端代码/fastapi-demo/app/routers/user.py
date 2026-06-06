@@ -77,7 +77,7 @@ async def create_user(
         user = await UserService.create_user(db, user_data)
         return Result(
             code=201,
-            message="用户创建成功",
+            msg="用户创建成功",
             data=UserResponse.model_validate(user),
         )
     except ValueError as e:
@@ -127,4 +127,4 @@ async def delete_user(user_id: int, db: AsyncSession = Depends(get_database)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"用户 {user_id} 不存在",
         )
-    return Result(message="用户删除成功")
+    return Result(msg="用户删除成功")

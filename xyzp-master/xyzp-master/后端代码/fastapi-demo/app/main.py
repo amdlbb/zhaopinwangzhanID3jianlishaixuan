@@ -163,7 +163,7 @@ async def get_result(msg: str):
     演示统一响应格式
     GET /result/hello
     """
-    return Result(code=200, message=f"{msg}", data=[])
+    return Result(code=200, msg=f"{msg}", data=[])
 
 
 if __name__ == "__main__":

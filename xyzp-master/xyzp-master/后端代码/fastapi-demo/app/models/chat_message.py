@@ -67,6 +67,7 @@ class ChatMessage(Base):
         comment="RAG来源（JSON数组，如 [\"文档1\", \"文档2\"]）",
     )
     created_at = Column(
+        "created_time",
         DateTime,
         server_default=func.now(),
         nullable=False,

@@ -60,7 +60,7 @@ async def auth_middleware(request: Request, call_next):
         # 2. 有 token → 调用 Java 服务校验
         try:
             result = await _auth_client.check_login(headers={"token": token.strip()})
-            if result.get("code") == 200:
+            if result.get("code") == 200 or result.get("code") == "200":
                 data = result.get("data", {}) or {}
                 request.state.is_logged_in = data.get("isLoggedIn", False)
                 request.state.user_id = data.get("userId")
