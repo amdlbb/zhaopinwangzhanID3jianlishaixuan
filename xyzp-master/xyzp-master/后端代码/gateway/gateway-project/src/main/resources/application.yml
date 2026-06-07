@@ -10,16 +10,10 @@ spring:
 
   cloud:
     nacos:
-      server-addr: 192.168.44.1:8848
       discovery:
-        cluster-name: mycluster
-        ephemeral: false
-        username: nacos
-        password: nacos
+        enabled: false
       config:
         enabled: false
-        username: nacos
-        password: nacos
 
     gateway:
       globalcors:
@@ -59,14 +53,14 @@ spring:
 
       routes:
         - id: ai-service-route
-          uri: lb://ai-service
+          uri: http://localhost:8000
           predicates:
             - Path=/api/ai/**
           filters:
             # 如果是 /api/ai/xxx，转发到 Python 服务时路径变为 /xxx
             - StripPrefix=2
         - id: webservice-route
-          uri: lb://webservice
+          uri: http://localhost:8081
           predicates:
             - Path=/api/**
 

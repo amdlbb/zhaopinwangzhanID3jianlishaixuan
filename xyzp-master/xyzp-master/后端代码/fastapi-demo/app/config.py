@@ -38,7 +38,7 @@ class Settings:
     REDIS_DB: int = 0
 
     # AI API 配置 (DeepSeek)
-    API_KEY: str = "888"
+    API_KEY: str = "sk-522498d44608413eb4148f45aadfcf12"
     BASE_URL: str = "https://api.deepseek.com"
     AI_MODEL: str = "deepseek-chat"
 

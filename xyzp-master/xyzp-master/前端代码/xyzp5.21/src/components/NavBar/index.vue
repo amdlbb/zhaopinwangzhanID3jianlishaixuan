@@ -153,6 +153,14 @@ export default {
         this.$bus.$on("getUserInfo", () => {
             this.getUserInfo()
         })
+        // AI 客服面板触发的登录/注册事件
+        this.$bus.$on("openLogin", () => {
+            this.loginRegBtnVisable = true
+        })
+        this.$bus.$on("openRegister", () => {
+            this.loginRegBtnVisable = true
+            this.$nextTick(() => { this.regBtnVisable = true })
+        })
         this.judgeUserExit()
     },
     methods: {
@@ -421,6 +429,8 @@ export default {
     },
     beforeDestroy() {
         this.$bus.$off("getUserInfo")
+        this.$bus.$off("openLogin")
+        this.$bus.$off("openRegister")
     }
 }
 </script>
