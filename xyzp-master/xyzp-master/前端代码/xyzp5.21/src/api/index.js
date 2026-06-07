@@ -365,3 +365,102 @@ export const retJobNum = () => {
         method: 'get',
     })
 }
+
+// 检查登录状态
+export const reqCheckLogin = () => {
+    return requests({
+        url: '/authorization/check-login',
+        method: 'get',
+    })
+}
+
+// ================ AI 客服 API ================
+
+// 临时会话 SSE 流式（免登录）
+export function reqTempAsk(question, sessionId, callbacks) {
+  const token = localStorage.getItem('token') || ''
+  let url = '/ai/chat/tempAsk?question=' + encodeURIComponent(question)
+  if (sessionId) url += '&session_id=' + encodeURIComponent(sessionId)
+  const ctrl = new AbortController()
+  fetch('/api' + url, {
+    method: 'POST', headers: { token }, signal: ctrl.signal,
+  }).then(res => {
+    const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = ''
+    function read() {
+      reader.read().then(({ done, value }) => {
+        if (done) return
+        buf += dec.decode(value, { stream: true })
+        const parts = buf.split('\n\n'); buf = parts.pop()
+        for (const p of parts) {
+          const lines = p.split('\n'); let et = '', ds = ''
+          for (const l of lines) {
+            if (l.startsWith('event: ')) et = l.slice(7).trim()
+            if (l.startsWith('data: ')) ds = l.slice(6)
+          }
+          if (!ds) continue
+          try {
+            const d = JSON.parse(ds)
+            if (et === 'meta') callbacks.onMeta && callbacks.onMeta(d)
+            else if (et === 'token') callbacks.onToken && callbacks.onToken(d.token)
+            else if (et === 'done') { callbacks.onDone && callbacks.onDone(d); return }
+          } catch(e) { console.warn(e) }
+        }
+        read()
+      }).catch(e => { if (e.name !== 'AbortError') callbacks.onError && callbacks.onError(e) })
+    }
+    read()
+  }).catch(e => { if (e.name !== 'AbortError') callbacks.onError && callbacks.onError(e) })
+  return ctrl
+}
+
+// 历史会话 SSE 流式（需登录）
+export function reqSendMessage(question, sessionId, callbacks) {
+  const token = localStorage.getItem('token') || ''
+  let url = '/ai/chat/sendMessage?question=' + encodeURIComponent(question)
+  if (sessionId) url += '&session_id=' + sessionId
+  const ctrl = new AbortController()
+  fetch('/api' + url, {
+    method: 'POST', headers: { token }, signal: ctrl.signal,
+  }).then(res => {
+    const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = ''
+    function read() {
+      reader.read().then(({ done, value }) => {
+        if (done) return
+        buf += dec.decode(value, { stream: true })
+        const parts = buf.split('\n\n'); buf = parts.pop()
+        for (const p of parts) {
+          const lines = p.split('\n'); let et = '', ds = ''
+          for (const l of lines) {
+            if (l.startsWith('event: ')) et = l.slice(7).trim()
+            if (l.startsWith('data: ')) ds = l.slice(6)
+          }
+          if (!ds) continue
+          try {
+            const d = JSON.parse(ds)
+            if (et === 'meta') callbacks.onMeta && callbacks.onMeta(d)
+            else if (et === 'token') callbacks.onToken && callbacks.onToken(d.token)
+            else if (et === 'done') { callbacks.onDone && callbacks.onDone(d); return }
+          } catch(e) { console.warn(e) }
+        }
+        read()
+      }).catch(e => { if (e.name !== 'AbortError') callbacks.onError && callbacks.onError(e) })
+    }
+    read()
+  }).catch(e => { if (e.name !== 'AbortError') callbacks.onError && callbacks.onError(e) })
+  return ctrl
+}
+
+// 查询历史会话列表
+export const reqSearchSession = () => {
+    return requests({ url: '/ai/chat/searchSession', method: 'post', data: {} })
+}
+
+// 查询会话详情
+export const reqGetSession = (sessionId) => {
+    return requests({ url: '/ai/chat/getSession', method: 'post', data: { session_id: sessionId } })
+}
+
+// 删除会话
+export const reqRemoveSession = (sessionId) => {
+    return requests({ url: '/ai/chat/removeSession', method: 'post', data: { session_id: sessionId } })
+}

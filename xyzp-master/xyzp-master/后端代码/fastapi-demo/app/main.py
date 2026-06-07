@@ -59,12 +59,12 @@ async def lifespan(app: FastAPI):
     public void onShutdown() { ... }
     """
     # -------- 启动时执行 ----------
-    print("🚀 应用启动中...")
+    print("[启动] 应用启动中...")
     async with engine.begin() as conn:
         # 自动创建所有继承 Base 的模型对应的表
         # 如果表已存在则跳过，不会覆盖
         await conn.run_sync(Base.metadata.create_all)
-    print("✅ 数据库表初始化完成")
+    print("[完成] 数据库表初始化完成")
     
 
     # --- 启动阶段 (替代原来的 @app.on_event("startup")) ---
@@ -81,9 +81,9 @@ async def lifespan(app: FastAPI):
     # --- 关闭阶段 (替代原来的 @app.on_event("shutdown")) ---
     # 应用关闭前，从Nacos注销服务
     # -------- 关闭时执行 ----------
-    print("🛑 应用关闭中...")
+    print("[关闭] 应用关闭中...")
     await engine.dispose()  # 关闭连接池
-    print("✅ 连接池已释放")
+    print("[完成] 连接池已释放")
     nacos_service.deregister("127.0.0.1", 8000)
 
 

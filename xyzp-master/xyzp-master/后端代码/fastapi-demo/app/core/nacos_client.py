@@ -1,6 +1,6 @@
 from nacos import NacosClient 
 
-NACOS_SERVER = "192.168.44.1:8848"
+NACOS_SERVER = "127.0.0.1:8848"
 NAMESPACE = "public"
 GROUP = "DEFAULT_GROUP"
 SERVICE_NAME = "fastapi-service"

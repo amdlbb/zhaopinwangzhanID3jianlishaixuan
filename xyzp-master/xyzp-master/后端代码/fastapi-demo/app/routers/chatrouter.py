@@ -58,6 +58,7 @@ def _sse_event(event: str, data: dict) -> str:
 # =================================================================
 
 @router.post("/tempAsk")
+@router.get("/tempAsk")
 async def temp_ask(
     question: str = Query(..., min_length=1, max_length=2000, description="用户问题"),
     session_id: Optional[str] = Query(None, description="会话ID，续聊时传入"),
@@ -102,6 +103,7 @@ async def temp_ask(
 # =================================================================
 
 @router.post("/sendMessage")
+@router.get("/sendMessage")
 async def send_message(
     request: Request,
     question: str = Query(..., min_length=1, max_length=2000, description="用户问题"),

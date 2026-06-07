@@ -102,10 +102,10 @@ async def ask(
     k = settings.SIMILARITY
     docs_with_scores = vs.similarity_search(question, k=k)
 
-    # 2. 拼接上下文
+    # 2. 拼接上下文，序列化向量检索结果
     context = "\n\n".join(doc.page_content for doc, _ in docs_with_scores)
 
-    # 3. 构建 prompt
+    # 3. 构建 prompt，按照has_history的值决定返回临时还是历史
     prompt = _build_prompt(has_history=chat_history is not None and len(chat_history) > 0)
 
     # 4. 构建消息
@@ -115,7 +115,7 @@ async def ask(
     messages["input"] = question
     messages["context"] = context
 
-    # 5. 调用 LLM
+    # 5. 调用 LLM，将rag检索，用户输入，历史记录注入到messages中
     chain = prompt | llm
     response = await chain.ainvoke(messages)
 

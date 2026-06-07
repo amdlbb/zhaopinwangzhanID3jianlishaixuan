@@ -118,6 +118,7 @@ async def create_session(db: AsyncSession, user_id: int, title: str = "新会话
     db.add(session)
     await db.flush()
     await db.refresh(session)
+    await db.commit()
     return session
 
 
@@ -169,7 +170,7 @@ async def ask_session(
     # 3. 先写入用户消息到 MySQL
     user_msg = ChatMessage(session_id=session_id, role="user", content=question)
     db.add(user_msg)
-    await db.flush()
+    await db.commit()
 
     # 4. 获取历史消息（通过 ChatHistoryStore）
     store = ChatHistoryStore(session_id=session_id, db=db, redis=redis)
@@ -202,7 +203,7 @@ async def ask_session(
         sources=json.dumps(sources, ensure_ascii=False) if sources else None,
     )
     db.add(ai_msg)
-    await db.flush()
+    await db.commit()
 
     # 7. 更新 Redis 缓存
     try:
