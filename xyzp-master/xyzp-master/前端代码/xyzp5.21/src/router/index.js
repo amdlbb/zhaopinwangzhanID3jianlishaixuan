@@ -59,6 +59,15 @@ const router = new VueRouter({
 		path: '/news/:id',
 		component: () => import('@/pages/News/NewsDetail'),
 	},
+	{
+		path: '/chat',
+		component: () => import('@/components/FloatButton/Chat'),
+	},
+	{
+		path: '/chatsession',
+		component: () => import('@/components/FloatButton/ChatSession'),
+	},
+
 
 	{
 		path: '/contact',

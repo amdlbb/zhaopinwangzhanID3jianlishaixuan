@@ -9,6 +9,7 @@ import userhome from './userhome'
 import workhome from './workhome'
 import nav from './nav'
 import teamhome from './teamhome'
+import CustomerService from './CustomerService'
 
 export default new Vuex.Store({
     // 实现Vuex仓库模式开发存储数据
@@ -17,8 +18,8 @@ export default new Vuex.Store({
         userhome,
         workhome,
         nav,
-        teamhome
-        
+        teamhome,
+        CustomerService,
     }
 })
 

@@ -2,6 +2,7 @@
   <div id="app">
     <NavBar></NavBar>
     <BlackDiv></BlackDiv>
+    <FloatButton></FloatButton>
     <router-view></router-view>
     <el-backtop><span class="iconfont icon-xiangshang1"></span></el-backtop>
   </div>
@@ -10,11 +11,13 @@
 <script>
 import NavBar from '@/components/NavBar'
 import BlackDiv from '@/components/BlackDiv'
+import FloatButton from "@/components/FloatButton/index.vue";
 export default {
   name: 'App',
   components: {
     NavBar,
-    BlackDiv
+    BlackDiv,
+    FloatButton
   }
 }
 </script>

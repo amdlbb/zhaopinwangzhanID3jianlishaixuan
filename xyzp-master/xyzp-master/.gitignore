@@ -28,3 +28,7 @@ Thumbs.db
 # Runtime
 runtime/
 logs/
+
+# ChromaDB
+*.sqlite3
+chroma_db_rag/

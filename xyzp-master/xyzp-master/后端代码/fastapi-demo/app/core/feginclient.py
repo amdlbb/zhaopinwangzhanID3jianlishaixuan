@@ -24,7 +24,7 @@ from nacos import NacosClient
 logger = logging.getLogger(__name__)
 
 # Nacos 服务器地址（与 core/nacos_client.py 保持一致）
-NACOS_SERVER = "192.168.44.1:8848"
+NACOS_SERVER = "127.0.0.1:8848"
 NAMESPACE = "public"
 
 
@@ -85,7 +85,7 @@ class FeignClient:
             logger.warning(f"Nacos 不可用，使用本地回退地址 localhost:8081")
             url = f"http://127.0.0.1:8081{path}"
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, proxy=None) as client:
             try:
                 resp = await client.request(method, url, headers=headers or {})
                 return resp.json()
